@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Auto-Editing</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🎬 Auto-Editing</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="editor.html">Editor</a></li>
+                <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <div class="container">
+            <h2>My Projects</h2>
+            
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Videos</h3>
+                    <p class="stat-number" id="totalVideos">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Processed</h3>
+                    <p class="stat-number" id="processedVideos">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <p class="stat-number" id="pendingVideos">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Storage Used</h3>
+                    <p class="stat-number" id="storageUsed">0 MB</p>
+                </div>
+            </div>
+
+            <!-- Projects List -->            <div class="projects-section">
+                <div class="section-header">
+                    <h3>Recent Projects</h3>
+                    <button class="btn btn-primary" onclick="window.location.href='editor.html'">
+                        + New Project
+                    </button>
+                </div>
+                
+                <div class="projects-list" id="projectsList">
+                    <!-- Projects will be loaded here -->
+                    <div class="empty-state">
+                        <p>No projects yet. Start by uploading a video!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                const response = await API.getProjects();
+                if (response.success) {
+                    displayProjects(response.projects);
+                    updateStats(response.stats);
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function displayProjects(projects) {
+            const projectsList = document.getElementById('projectsList');
+            
+            if (!projects || projects.length === 0) {
+                projectsList.innerHTML = '<div class="empty-state"><p>No projects yet. Start by uploading a video!</p></div>';
+                return;
+            }
+
+            projectsList.innerHTML = projects.map(project => `
+                <div class="project-card">
+                    <div class="project-info">
+                        <h4>${project.name}</h4>
+                        <p>Created: ${new Date(project.created_at).toLocaleDateString()}</p>
+                        <span class="status-badge ${project.status}">${project.status}</span>
+                    </div>
+                    <div class="project-actions">                        <button class="btn btn-secondary" onclick="openProject('${project.id}')">
+                            Open
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteProject('${project.id}')">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalVideos').textContent = stats.total || 0;
+            document.getElementById('processedVideos').textContent = stats.processed || 0;
+            document.getElementById('pendingVideos').textContent = stats.pending || 0;
+            document.getElementById('storageUsed').textContent = stats.storage || '0 MB';
+        }
+
+        function openProject(projectId) {
+            window.location.href = `editor.html?project=${projectId}`;
+        }
+
+        async function deleteProject(projectId) {
+            if (confirm('Are you sure you want to delete this project?')) {
+                try {
+                    const response = await API.deleteProject(projectId);
+                    if (response.success) {
+                        loadDashboard();
+                    }
+                } catch (error) {
+                    console.error('Error deleting project:', error);
+                }
+            }
+        }
+
+        // Load dashboard on page load
+        loadDashboard();
+    </script>
+</body>
+</html>
