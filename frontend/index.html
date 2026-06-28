@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Editing - AI Powered Video Editor</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🎬 Auto-Editing</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">Home</a></li>
+                <li><a href="editor.html">Editor</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>AI-Powered Video Editing</h1>
+            <p>Transform your videos automatically with our intelligent editing tools</p>
+            <div class="cta-buttons">
+                <a href="editor.html" class="btn btn-primary">Start Editing</a>
+                <a href="#features" class="btn btn-secondary">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Upload Section -->
+    <section class="upload-section">
+        <div class="container">
+            <h2>Upload Your Video</h2>
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📹</div>
+                <h3>Drag & Drop your video here</h3>
+                <p>or</p>
+                <input type="file" id="videoInput" accept="video/*" hidden>
+                <button class="btn btn-primary" onclick="document.getElementById('videoInput').click()">
+                    Browse Files
+                </button>                <p class="upload-info">Supported formats: MP4, AVI, MOV, MKV (Max 500MB)</p>
+            </div>
+            
+            <!-- Upload Progress -->
+            <div class="upload-progress" id="uploadProgress" style="display: none;">
+                <h3>Uploading...</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p id="progressText">0%</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Powerful Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">✂️</div>
+                    <h3>Auto-Trimming</h3>
+                    <p>Automatically remove silent parts and awkward pauses from your videos</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Auto-Captions</h3>
+                    <p>Generate accurate captions using AI-powered speech recognition</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎵</div>
+                    <h3>Audio Mixing</h3>
+                    <p>Add royalty-free background music and balance audio levels</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Color Correction</h3>
+                    <p>Automatically enhance video colors and lighting</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Fast Processing</h3>
+                    <p>Quick video processing with optimized algorithms</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Multi-Format</h3>
+                    <p>Export in various formats optimized for different platforms</p>
+                </div>
+            </div>        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2>About Auto-Editing</h2>
+            <p>Auto-Editing is an AI-powered video editing platform designed to help content creators save time and produce professional-quality videos. Our advanced algorithms analyze your footage and automatically apply edits, captions, and enhancements.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Auto-Editing. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#terms">Terms of Service</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/uploader.js"></script>
+    <script src="js/api.js"></script>
+</body>
+</html>
