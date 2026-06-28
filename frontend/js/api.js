@@ -1,6 +1,6 @@
-// API Handler
+// API Handler - Auto-Editing
 
-const API_BASE_URL = 'http://localhost:8000'; // Change this to your backend URL
+const API_BASE_URL = 'https://auto-editing.onrender.com';
 
 const API = {
     // Upload video
