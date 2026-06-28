@@ -269,4 +269,4 @@ async def get_user_stats():
             "total_processing_time": 0,
             "storage_used": 0
         }
-                                 }
+    }
