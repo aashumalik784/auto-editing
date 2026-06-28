@@ -1,0 +1,14 @@
+name = "auto-editing-worker"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+API_BASE_URL = "https://your-backend-url.com"
+
+# Environment variables (add these in Cloudflare dashboard)
+# API_KEY = "your-api-key"
+
+# Routes (optional)
+# routes = [
+#   { pattern = "api.auto-editing.com/*", zone_name = "auto-editing.com" }
+# ]
