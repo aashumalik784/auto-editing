@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.env
+
+# Storage
+backend/storage/uploads/*
+backend/storage/processed/*
+!backend/storage/uploads/.gitkeep
+!backend/storage/processed/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
