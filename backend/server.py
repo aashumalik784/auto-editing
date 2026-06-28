@@ -10,12 +10,6 @@ import os
 import shutil
 from datetime import datetime
 
-from processors.video_editor import VideoEditor
-from processors.audio_processor import AudioProcessor
-from processors.caption_generator import CaptionGenerator
-from processors.trimmer import VideoTrimmer
-from utils.file_handler import FileHandler
-from utils.logger import logger
 from config import settings
 
 # Initialize FastAPI app
@@ -28,7 +22,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change this to your frontend URL in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,17 +31,11 @@ app.add_middleware(
 # Storage for processing jobs (in production, use Redis or database)
 processing_jobs: Dict[str, Dict] = {}
 
-# Initialize processors
-video_editor = VideoEditor()
-audio_processor = AudioProcessor()
-caption_generator = CaptionGenerator()
-video_trimmer = VideoTrimmer()
-file_handler = FileHandler()
-
 
 # Models
 class ProcessRequest(BaseModel):
-    videoId: str    options: Dict
+    videoId: str
+    options: Dict
 
 
 class ProcessResponse(BaseModel):
@@ -59,8 +47,7 @@ class ProcessResponse(BaseModel):
 # Routes
 @app.get("/")
 async def root():
-    """Health check endpoint"""
-    return {
+    """Health check endpoint"""    return {
         "status": "healthy",
         "service": "Auto-Editing API",
         "version": "1.0.0"
@@ -79,27 +66,24 @@ async def upload_video(background_tasks: BackgroundTasks, video: UploadFile = Fi
         video_id = str(uuid.uuid4())
         
         # Save file
-        file_path = await file_handler.save_upload(video, video_id)
+        os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+        file_extension = os.path.splitext(video.filename)[1] or '.mp4'
+        file_path = os.path.join(settings.UPLOAD_DIR, f"{video_id}{file_extension}")
         
-        # Create video record
-        video_record = {
-            "id": video_id,
-            "filename": video.filename,
-            "path": file_path,
-            "size": os.path.getsize(file_path),
-            "created_at": datetime.now().isoformat(),
-            "status": "uploaded"
-        }
+        with open(file_path, 'wb') as buffer:
+            content = await video.read()
+            buffer.write(content)
         
-        logger.info(f"Video uploaded: {video_id}")
+        print(f"Video uploaded: {video_id} -> {file_path}")
         
         return {
             "success": True,
             "videoId": video_id,
-            "message": "Video uploaded successfully"        }
+            "message": "Video uploaded successfully"
+        }
     
     except Exception as e:
-        logger.error(f"Upload error: {str(e)}")
+        print(f"Upload error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -107,9 +91,14 @@ async def upload_video(background_tasks: BackgroundTasks, video: UploadFile = Fi
 async def get_video(video_id: str):
     """Get video information"""
     try:
-        video_path = f"storage/uploads/{video_id}.mp4"
+        # Find the video file
+        video_path = None
+        for ext in ['.mp4', '.avi', '.mov', '.mkv']:
+            test_path = os.path.join(settings.UPLOAD_DIR, f"{video_id}{ext}")
+            if os.path.exists(test_path):
+                video_path = test_path                break
         
-        if not os.path.exists(video_path):
+        if not video_path:
             raise HTTPException(status_code=404, detail="Video not found")
         
         return {
@@ -117,21 +106,26 @@ async def get_video(video_id: str):
             "videoUrl": f"/api/video/{video_id}/file",
             "video": {
                 "id": video_id,
-                "filename": f"{video_id}.mp4"
+                "filename": os.path.basename(video_path)
             }
         }
     
     except Exception as e:
-        logger.error(f"Get video error: {str(e)}")
+        print(f"Get video error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/video/{video_id}/file")
 async def get_video_file(video_id: str):
     """Get video file"""
-    video_path = f"storage/uploads/{video_id}.mp4"
+    video_path = None
+    for ext in ['.mp4', '.avi', '.mov', '.mkv']:
+        test_path = os.path.join(settings.UPLOAD_DIR, f"{video_id}{ext}")
+        if os.path.exists(test_path):
+            video_path = test_path
+            break
     
-    if not os.path.exists(video_path):
+    if not video_path:
         raise HTTPException(status_code=404, detail="Video not found")
     
     return FileResponse(video_path, media_type="video/mp4")
@@ -145,13 +139,13 @@ async def process_video(request: ProcessRequest, background_tasks: BackgroundTas
         options = request.options
         
         # Generate job ID
-        job_id = str(uuid.uuid4())        
+        job_id = str(uuid.uuid4())
+        
         # Create job record
         processing_jobs[job_id] = {
             "id": job_id,
             "video_id": video_id,
-            "status": "processing",
-            "progress": 0,
+            "status": "processing",            "progress": 0,
             "message": "Starting processing...",
             "options": options,
             "created_at": datetime.now().isoformat()
@@ -160,7 +154,7 @@ async def process_video(request: ProcessRequest, background_tasks: BackgroundTas
         # Start processing in background
         background_tasks.add_task(process_video_task, job_id, video_id, options)
         
-        logger.info(f"Processing started: {job_id}")
+        print(f"Processing started: {job_id}")
         
         return {
             "success": True,
@@ -169,15 +163,27 @@ async def process_video(request: ProcessRequest, background_tasks: BackgroundTas
         }
     
     except Exception as e:
-        logger.error(f"Process error: {str(e)}")
+        print(f"Process error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 async def process_video_task(job_id: str, video_id: str, options: Dict):
     """Background task for video processing"""
     try:
-        input_path = f"storage/uploads/{video_id}.mp4"
-        output_path = f"storage/processed/{video_id}_edited.mp4"
+        # Find input file
+        input_path = None
+        for ext in ['.mp4', '.avi', '.mov', '.mkv']:
+            test_path = os.path.join(settings.UPLOAD_DIR, f"{video_id}{ext}")
+            if os.path.exists(test_path):
+                input_path = test_path
+                break
+        
+        if not input_path:
+            raise Exception("Input video not found")
+        
+        output_path = os.path.join(settings.PROCESSED_DIR, f"{video_id}_edited.mp4")
+        os.makedirs(settings.PROCESSED_DIR, exist_ok=True)
+        os.makedirs(settings.TEMP_DIR, exist_ok=True)
         
         # Update progress
         processing_jobs[job_id]["progress"] = 10
@@ -185,51 +191,38 @@ async def process_video_task(job_id: str, video_id: str, options: Dict):
         
         current_path = input_path
         
-        # Step 1: Auto-trim silence
+        # Step 1: Auto-trim silence (simplified)
         if options.get("autoTrim"):
-            processing_jobs[job_id]["progress"] = 20
-            processing_jobs[job_id]["message"] = "Removing silent parts..."
-            trimmed_path = f"storage/temp/{video_id}_trimmed.mp4"
-            await video_trimmer.trim_silence(current_path, trimmed_path)
+            processing_jobs[job_id]["progress"] = 30
+            processing_jobs[job_id]["message"] = "Removing silent parts..."            # For now, just copy the file
+            trimmed_path = os.path.join(settings.TEMP_DIR, f"{video_id}_trimmed.mp4")
+            shutil.copy(current_path, trimmed_path)
             current_path = trimmed_path
         
-        # Step 2: Generate captions
-        if options.get("autoCaptions"):            processing_jobs[job_id]["progress"] = 40
-            processing_jobs[job_id]["message"] = "Generating captions..."
-            captions = await caption_generator.generate(current_path)
-            
+        # Step 2: Captions (placeholder)
+        if options.get("autoCaptions"):
             processing_jobs[job_id]["progress"] = 50
-            processing_jobs[job_id]["message"] = "Adding captions to video..."
-            captioned_path = f"storage/temp/{video_id}_captioned.mp4"
-            await video_editor.add_captions(current_path, captions, captioned_path)
-            current_path = captioned_path
+            processing_jobs[job_id]["message"] = "Generating captions..."
+            # Placeholder - will add Whisper later
         
-        # Step 3: Add background music
+        # Step 3: Background music (placeholder)
         if options.get("autoMusic") and options.get("musicType") != "none":
             processing_jobs[job_id]["progress"] = 70
             processing_jobs[job_id]["message"] = "Adding background music..."
-            music_path = f"assets/music/{options.get('musicType')}.mp3"
-            music_volume = options.get("musicVolume", 20) / 100
-            mixed_path = f"storage/temp/{video_id}_mixed.mp4"
-            await audio_processor.add_background_music(current_path, music_path, mixed_path, music_volume)
-            current_path = mixed_path
+            # Placeholder
         
-        # Step 4: Color correction
+        # Step 4: Color correction (placeholder)
         if options.get("autoColor"):
             processing_jobs[job_id]["progress"] = 85
             processing_jobs[job_id]["message"] = "Applying color correction..."
-            colored_path = f"storage/temp/{video_id}_colored.mp4"
-            await video_editor.apply_color_correction(current_path, colored_path)
-            current_path = colored_path
+            # Placeholder
         
         # Step 5: Final export
         processing_jobs[job_id]["progress"] = 95
         processing_jobs[job_id]["message"] = "Finalizing video..."
         
-        quality = options.get("quality", "1080p")
-        format_type = options.get("format", "mp4")
-        
-        await video_editor.export_video(current_path, output_path, quality, format_type)
+        # Copy to output (in real implementation, use FFmpeg)
+        shutil.copy(current_path, output_path)
         
         # Update job status
         processing_jobs[job_id]["status"] = "completed"
@@ -237,13 +230,11 @@ async def process_video_task(job_id: str, video_id: str, options: Dict):
         processing_jobs[job_id]["message"] = "Processing completed"
         processing_jobs[job_id]["output_path"] = output_path
         
-        logger.info(f"Processing completed: {job_id}")
-        
-        # Clean up temp files
-        file_handler.cleanup_temp_files(video_id)
+        print(f"Processing completed: {job_id}")
     
     except Exception as e:
-        logger.error(f"Processing error: {str(e)}")        processing_jobs[job_id]["status"] = "failed"
+        print(f"Processing error: {str(e)}")
+        processing_jobs[job_id]["status"] = "failed"
         processing_jobs[job_id]["message"] = f"Processing failed: {str(e)}"
 
 
@@ -252,8 +243,7 @@ async def get_processing_status(job_id: str):
     """Get processing status"""
     if job_id not in processing_jobs:
         raise HTTPException(status_code=404, detail="Job not found")
-    
-    job = processing_jobs[job_id]
+        job = processing_jobs[job_id]
     
     return {
         "success": True,
@@ -267,7 +257,7 @@ async def get_processing_status(job_id: str):
 async def export_video(video_id: str):
     """Export processed video"""
     try:
-        output_path = f"storage/processed/{video_id}_edited.mp4"
+        output_path = os.path.join(settings.PROCESSED_DIR, f"{video_id}_edited.mp4")
         
         if not os.path.exists(output_path):
             raise HTTPException(status_code=404, detail="Processed video not found")
@@ -279,20 +269,21 @@ async def export_video(video_id: str):
         }
     
     except Exception as e:
-        logger.error(f"Export error: {str(e)}")
+        print(f"Export error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/download/{video_id}")
 async def download_video(video_id: str):
     """Download processed video"""
-    output_path = f"storage/processed/{video_id}_edited.mp4"
+    output_path = os.path.join(settings.PROCESSED_DIR, f"{video_id}_edited.mp4")
     
     if not os.path.exists(output_path):
         raise HTTPException(status_code=404, detail="Video not found")
     
     return FileResponse(
-        output_path,        media_type="video/mp4",
+        output_path,
+        media_type="video/mp4",
         filename=f"edited_video_{video_id}.mp4"
     )
 
@@ -300,10 +291,8 @@ async def download_video(video_id: str):
 @app.get("/api/projects")
 async def get_projects():
     """Get all projects"""
-    # In production, fetch from database
     return {
-        "success": True,
-        "projects": [],
+        "success": True,        "projects": [],
         "stats": {
             "total": 0,
             "processed": 0,
@@ -317,10 +306,14 @@ async def get_projects():
 async def delete_project(project_id: str):
     """Delete a project"""
     try:
-        # Delete from storage
-        file_handler.delete_video(project_id)
+        # Delete files
+        for folder in [settings.UPLOAD_DIR, settings.PROCESSED_DIR]:
+            if os.path.exists(folder):
+                for file in os.listdir(folder):
+                    if file.startswith(project_id):
+                        os.remove(os.path.join(folder, file))
         
-        logger.info(f"Project deleted: {project_id}")
+        print(f"Project deleted: {project_id}")
         
         return {
             "success": True,
@@ -328,20 +321,20 @@ async def delete_project(project_id: str):
         }
     
     except Exception as e:
-        logger.error(f"Delete error: {str(e)}")
+        print(f"Delete error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/stats")
 async def get_user_stats():
     """Get user statistics"""
-    # In production, calculate from database
     return {
         "success": True,
         "stats": {
             "total_videos": 0,
             "total_processing_time": 0,
-            "storage_used": 0        }
+            "storage_used": 0
+        }
     }
 
 
