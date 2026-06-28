@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Editor - Auto-Editing</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/editor.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🎬 Auto-Editing</h1>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="editor.html" class="active">Editor</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Editor Container -->
+    <div class="editor-container">
+        <!-- Sidebar -->
+        <aside class="editor-sidebar">
+            <h3>Editing Tools</h3>
+            <div class="tool-group">
+                <h4>Auto Features</h4>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="autoTrim" checked>
+                    <span>Auto-Trim Silence</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="autoCaptions" checked>
+                    <span>Generate Captions</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="autoMusic">
+                    <span>Add Background Music</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="autoColor">
+                    <span>Color Correction</span>
+                </label>
+            </div>
+            <div class="tool-group">
+                <h4>Music Selection</h4>
+                <select id="musicSelect">
+                    <option value="none">No Music</option>
+                    <option value="upbeat">Upbeat</option>
+                    <option value="calm">Calm</option>
+                    <option value="dramatic">Dramatic</option>
+                    <option value="corporate">Corporate</option>
+                </select>
+                <div class="volume-control">
+                    <label>Music Volume:</label>
+                    <input type="range" id="musicVolume" min="0" max="100" value="20">
+                    <span id="volumeValue">20%</span>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <h4>Export Settings</h4>
+                <label>Quality:</label>
+                <select id="qualitySelect">
+                    <option value="1080p">1080p (Full HD)</option>
+                    <option value="720p">720p (HD)</option>
+                    <option value="480p">480p (SD)</option>
+                </select>
+                
+                <label>Format:</label>
+                <select id="formatSelect">
+                    <option value="mp4">MP4</option>
+                    <option value="webm">WebM</option>
+                    <option value="mov">MOV</option>
+                </select>
+            </div>
+        </aside>
+
+        <!-- Main Editor Area -->
+        <main class="editor-main">
+            <!-- Video Preview -->
+            <div class="video-preview">
+                <video id="videoPlayer" controls>
+                    <source src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                <div class="video-controls">
+                    <button id="playBtn" class="control-btn">▶️ Play</button>
+                    <button id="pauseBtn" class="control-btn">⏸️ Pause</button>
+                    <input type="range" id="videoSeek" min="0" max="100" value="0">
+                    <span id="timeDisplay">0:00 / 0:00</span>
+                </div>
+            </div>
+            <!-- Timeline -->
+            <div class="timeline">
+                <h4>Timeline</h4>
+                <div class="timeline-track" id="timelineTrack">
+                    <!-- Timeline segments will be added here -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="editor-actions">
+                <button id="processBtn" class="btn btn-primary">
+                    🚀 Process Video
+                </button>
+                <button id="previewBtn" class="btn btn-secondary">
+                    👁️ Preview Changes
+                </button>
+                <button id="exportBtn" class="btn btn-success" disabled>
+                    💾 Export Video
+                </button>
+            </div>
+
+            <!-- Processing Status -->
+            <div class="processing-status" id="processingStatus" style="display: none;">
+                <h3>Processing Video...</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="processingProgress"></div>
+                </div>
+                <p id="processingText">Initializing...</p>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/main.js"></script>
+    <script src="js/editor.js"></script>
+    <script src="js/api.js"></script>
+</body>
+</html>
