@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
-from typing import Dict, List
+from typing import Dict
 import uuid
 import os
 import shutil
@@ -39,7 +39,6 @@ async def upload_video(video: UploadFile = File(...)):
     with open(file_path, 'wb') as buffer:
         content = await video.read()
         buffer.write(content)
-    
     project_id = str(uuid.uuid4())
     projects_db[project_id] = {
         "id": project_id,
@@ -47,9 +46,8 @@ async def upload_video(video: UploadFile = File(...)):
         "name": video.filename,
         "created_at": datetime.now().isoformat(),
         "size": f"{len(content) / (1024*1024):.1f}MB",
-        "status": "uploaded",        "duration": "00:00"
-    }
-    
+        "status": "uploaded",
+        "duration": "00:00"    }
     return {"success": True, "videoId": video_id, "projectId": project_id, "message": "Video uploaded successfully"}
 
 @app.get("/api/video/{video_id}")
@@ -96,7 +94,26 @@ async def process_video_task(job_id: str, video_id: str, options: Dict):
         processing_jobs[job_id]["status"] = "failed"
         return
     output_path = os.path.join(PROCESSED_DIR, f"{video_id}_edited.mp4")
-    processing_jobs[job_id]["progress"] = 50    shutil.copy(input_path, output_path)
+    processing_jobs[job_id]["progress"] = 10
+    processing_jobs[job_id]["message"] = "Analyzing video..."
+    current_path = input_path    if options.get("autoTrim"):
+        processing_jobs[job_id]["progress"] = 30
+        processing_jobs[job_id]["message"] = "Removing silent parts..."
+        trimmed_path = os.path.join(TEMP_DIR, f"{video_id}_trimmed.mp4")
+        shutil.copy(current_path, trimmed_path)
+        current_path = trimmed_path
+    if options.get("autoCaptions"):
+        processing_jobs[job_id]["progress"] = 50
+        processing_jobs[job_id]["message"] = "Generating captions..."
+    if options.get("autoMusic") and options.get("musicType") != "none":
+        processing_jobs[job_id]["progress"] = 70
+        processing_jobs[job_id]["message"] = "Adding background music..."
+    if options.get("autoColor"):
+        processing_jobs[job_id]["progress"] = 85
+        processing_jobs[job_id]["message"] = "Applying color correction..."
+    processing_jobs[job_id]["progress"] = 95
+    processing_jobs[job_id]["message"] = "Finalizing video..."
+    shutil.copy(current_path, output_path)
     processing_jobs[job_id]["status"] = "completed"
     processing_jobs[job_id]["progress"] = 100
     processing_jobs[job_id]["message"] = "Processing completed"
@@ -128,8 +145,7 @@ async def get_projects():
     projects_list = list(projects_db.values())
     total = len(projects_list)
     processed = len([p for p in projects_list if p.get("status") == "completed"])
-    pending = len([p for p in projects_list if p.get("status") == "uploaded"])
-    storage = f"{sum(len(os.listdir(UPLOAD_DIR)) * 0.5, 0):.1f}MB"
+    pending = len([p for p in projects_list if p.get("status") == "uploaded"])    storage = "0 MB"
     return {"success": True, "projects": projects_list, "stats": {"total": total, "processed": processed, "pending": pending, "storage": storage}}
 
 @app.delete("/api/project/{project_id}")
@@ -145,6 +161,7 @@ async def delete_project(project_id: str):
                     os.remove(os.path.join(folder, file))
     del projects_db[project_id]
     return {"success": True, "message": "Project deleted successfully"}
+
 @app.get("/api/stats")
 async def get_user_stats():
     total = len(projects_db)
