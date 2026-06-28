@@ -1,18 +1,23 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
-moviepy==1.0.3
-pydantic==2.5.0
-python-dotenv==1.0.0
-aiofiles==23.2.1
-Pillow==10.1.0
-numpy==1.26.2
-setuptools>=65.5.0
-wheel>=0.41.0
+# Core FastAPI
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-multipart>=0.0.7
+pydantic>=2.5.3
+python-dotenv>=1.0.0
+aiofiles>=23.2.1
 
-# Whisper AI - Light version (base model only)
-# openai-whisper install se pehle ye dependencies
-triton==2.1.0; sys_platform == 'linux'
-tiktoken==0.5.1
-more-itertools==10.1.0
-openai-whisper==20231117
+# Video processing
+moviepy>=1.0.3
+Pillow>=10.2.0
+numpy>=1.26.3
+
+# FFmpeg Python bindings
+ffmpeg-python>=0.2.0
+
+# Build tools
+setuptools>=69.0.0
+wheel>=0.42.0
+
+# Optional: Whisper AI (baad mein add karein)
+# openai-whisper>=20231117
+# tiktoken>=0.5.1
