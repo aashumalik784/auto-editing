@@ -3,124 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto-Editing - AI Powered Video Editor</title>
+    <title>Auto-Editing - AI Video Editor</title>
     <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <h1>🎬 Auto-Editing</h1>
+    <!-- Header -->
+    <header class="modern-header">
+        <div class="header-top">
+            <div class="header-left">
+                <i class="fas fa-user-circle user-icon"></i>
             </div>
-            <ul class="nav-menu">
-                <li><a href="index.html" class="active">Home</a></li>
-                <li><a href="editor.html">Editor</a></li>
-                <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="#features">Features</a></li>
-                <li><a href="#about">About</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>AI-Powered Video Editing</h1>
-            <p>Transform your videos automatically with our intelligent editing tools</p>
-            <div class="cta-buttons">
-                <a href="editor.html" class="btn btn-primary">Start Editing</a>
-                <a href="#features" class="btn btn-secondary">Learn More</a>
+            <div class="header-right">
+                <i class="fas fa-bell"></i>
+                <i class="fas fa-cog"></i>
             </div>
         </div>
-    </section>
+    </header>
 
-    <!-- Upload Section -->
-    <section class="upload-section">
-        <div class="container">
-            <h2>Upload Your Video</h2>
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">📹</div>
-                <h3>Drag & Drop your video here</h3>
-                <p>or</p>
-                <input type="file" id="videoInput" accept="video/*" hidden>
-                <button class="btn btn-primary" onclick="document.getElementById('videoInput').click()">
-                    Browse Files
-                </button>                <p class="upload-info">Supported formats: MP4, AVI, MOV, MKV (Max 500MB)</p>
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Cards -->
+        <div class="top-cards">
+            <div class="card new-video-card" onclick="window.location.href='editor.html'">
+                <div class="card-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <span class="card-label">New video</span>
+                <div class="card-badge">GPT Image 2</div>
+            </div>
+            <div class="card edit-photo-card">
+                <div class="card-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <span class="card-label">Edit photo</span>
+            </div>
+        </div>
+
+        <!-- Tools Grid -->
+        <div class="tools-section">
+            <div class="tools-grid">
+                <div class="tool-item" onclick="window.location.href='editor.html'">
+                    <i class="fas fa-magic"></i>
+                    <span>AutoCut</span>
+                </div>
+                <div class="tool-item">                    <i class="fas fa-wand-magic-sparkles"></i>
+                    <span>Retouch</span>
+                </div>
+                <div class="tool-item">
+                    <i class="fas fa-robot"></i>
+                    <span>AI generator</span>
+                </div>
+                <div class="tool-item">
+                    <i class="fas fa-closed-captioning"></i>
+                    <span>Auto captions</span>
+                </div>
+                <div class="tool-item">
+                    <i class="fas fa-desktop"></i>
+                    <span>Desktop editor</span>
+                </div>
+                <div class="tool-item">
+                    <i class="fas fa-user-slash"></i>
+                    <span>Remove background</span>
+                </div>
+                <div class="tool-item">
+                    <i class="fas fa-camera"></i>
+                    <span>Camera</span>
+                </div>
+                <div class="tool-item">
+                    <i class="fas fa-th-large"></i>
+                    <span>All tools</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="projects-section">
+            <div class="section-header">
+                <h2>Projects</h2>
+                <button class="menu-btn"><i class="fas fa-bars"></i></button>
             </div>
             
-            <!-- Upload Progress -->
-            <div class="upload-progress" id="uploadProgress" style="display: none;">
-                <h3>Uploading...</h3>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
+            <div class="projects-list" id="projectsList">
+                <!-- Projects will be loaded here -->
+                <div class="project-item">
+                    <div class="project-thumbnail">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="project-info">
+                        <h3>0501-01</h3>
+                        <p class="project-date">01/05/2026 20:18</p>
+                        <p class="project-size"><i class="fas fa-image"></i> 3MB</p>
+                    </div>
+                    <div class="project-menu">
+                        <i class="fas fa-ellipsis-v"></i>                    </div>
                 </div>
-                <p id="progressText">0%</p>
+
+                <div class="project-item">
+                    <div class="project-thumbnail">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="project-info">
+                        <h3>0429-01</h3>
+                        <p class="project-date">29/04/2026 22:10</p>
+                        <p class="project-size"><i class="fas fa-cut"></i> 19MB | 01:13</p>
+                    </div>
+                    <div class="project-menu">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </div>
+                </div>
             </div>
         </div>
-    </section>
+    </main>
 
-    <!-- Features Section -->
-    <section id="features" class="features">
-        <div class="container">
-            <h2>Powerful Features</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">✂️</div>
-                    <h3>Auto-Trimming</h3>
-                    <p>Automatically remove silent parts and awkward pauses from your videos</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📝</div>
-                    <h3>Auto-Captions</h3>
-                    <p>Generate accurate captions using AI-powered speech recognition</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎵</div>
-                    <h3>Audio Mixing</h3>
-                    <p>Add royalty-free background music and balance audio levels</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎨</div>
-                    <h3>Color Correction</h3>
-                    <p>Automatically enhance video colors and lighting</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Fast Processing</h3>
-                    <p>Quick video processing with optimized algorithms</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📱</div>
-                    <h3>Multi-Format</h3>
-                    <p>Export in various formats optimized for different platforms</p>
-                </div>
-            </div>        </div>
-    </section>
-
-    <!-- About Section -->
-    <section id="about" class="about">
-        <div class="container">
-            <h2>About Auto-Editing</h2>
-            <p>Auto-Editing is an AI-powered video editing platform designed to help content creators save time and produce professional-quality videos. Our advanced algorithms analyze your footage and automatically apply edits, captions, and enhancements.</p>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 Auto-Editing. All rights reserved.</p>
-            <div class="footer-links">
-                <a href="#privacy">Privacy Policy</a>
-                <a href="#terms">Terms of Service</a>
-                <a href="#contact">Contact</a>
-            </div>
-        </div>
-    </footer>
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="editor.html" class="nav-item">
+            <i class="fas fa-video"></i>
+            <span>Editor</span>
+        </a>
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-folder"></i>
+            <span>Projects</span>
+        </a>
+    </nav>
 
     <script src="js/main.js"></script>
-    <script src="js/uploader.js"></script>
     <script src="js/api.js"></script>
 </body>
 </html>
